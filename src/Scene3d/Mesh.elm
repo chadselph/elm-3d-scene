@@ -43,7 +43,6 @@ import BoundingBox3d exposing (BoundingBox3d)
 import Dict exposing (Dict)
 import Geometry.Interop.LinearAlgebra.Point3d as Point3d
 import Geometry.Interop.LinearAlgebra.Vector3d as Vector3d
-import Length exposing (Meters)
 import LineSegment3d exposing (LineSegment3d)
 import Math.Vector2 exposing (Vec2)
 import Math.Vector3 exposing (Vec3)
@@ -69,8 +68,8 @@ import Vector3d exposing (Vector3d)
 import WebGL
 
 
-type alias Mesh coordinates attributes =
-    Types.Mesh coordinates attributes
+type alias Mesh units coordinates attributes =
+    Types.Mesh units coordinates attributes
 
 
 type Yes
@@ -83,61 +82,61 @@ type No
 
 {-| A mesh containing vertex positions only.
 -}
-type alias Plain coordinates =
-    Mesh coordinates { normals : No, uvs : No, tangents : No }
+type alias Plain units coordinates =
+    Mesh units coordinates { normals : No, uvs : No, tangents : No }
 
 
 {-| A mesh with normal vectors at each vertex but no UV (texture) coordinates,
 meaning that surface appearance will be uniform across the mesh.
 -}
-type alias Uniform coordinates =
-    Mesh coordinates { normals : Yes, uvs : No, tangents : No }
+type alias Uniform units coordinates =
+    Mesh units coordinates { normals : Yes, uvs : No, tangents : No }
 
 
 {-| A mesh with UV coordinates at each vertex but no normal vectors (normal
 vectors are required for any kind of lighting calculation).
 -}
-type alias Unlit coordinates =
-    Mesh coordinates { normals : No, uvs : Yes, tangents : No }
+type alias Unlit units coordinates =
+    Mesh units coordinates { normals : No, uvs : Yes, tangents : No }
 
 
 {-| A mesh with both normal vectors and UV coordinates at each vertex, allowing
 for general-purpose texturing of lit objects.
 -}
-type alias Textured coordinates =
-    Mesh coordinates { normals : Yes, uvs : Yes, tangents : No }
+type alias Textured units coordinates =
+    Mesh units coordinates { normals : Yes, uvs : Yes, tangents : No }
 
 
 {-| A mesh with normal vectors, UV coordinates and tangent vectors at each
 vertex, allowing for full texturing including normal maps.
 -}
-type alias NormalMapped coordinates =
-    Mesh coordinates { normals : Yes, uvs : Yes, tangents : Yes }
+type alias NormalMapped units coordinates =
+    Mesh units coordinates { normals : Yes, uvs : Yes, tangents : Yes }
 
 
 {-| A mesh with normal and tangent vectors but no UV coordinates, allowing for
 some specialized material models such as brushed metal but no texturing.
 -}
-type alias Anisotropic coordinates =
-    Mesh coordinates { normals : Yes, uvs : No, tangents : Yes }
+type alias Anisotropic units coordinates =
+    Mesh units coordinates { normals : Yes, uvs : No, tangents : Yes }
 
 
-type alias Shadow coordinates =
-    Types.Shadow coordinates
+type alias Shadow units coordinates =
+    Types.Shadow units coordinates
 
 
-empty : Mesh coordinates attributes
+empty : Mesh units coordinates attributes
 empty =
     Types.EmptyMesh
 
 
-plainVertex : Point3d Meters coordinates -> PlainVertex
+plainVertex : Point3d units coordinates -> PlainVertex
 plainVertex point =
     { position = Point3d.toVec3 point }
 
 
 triangleAttributes :
-    Triangle3d Meters coordinates
+    Triangle3d units coordinates
     -> ( PlainVertex, PlainVertex, PlainVertex )
 triangleAttributes triangle =
     let
@@ -148,7 +147,7 @@ triangleAttributes triangle =
 
 
 facetAttributes :
-    Triangle3d Meters coordinates
+    Triangle3d units coordinates
     -> ( VertexWithNormal, VertexWithNormal, VertexWithNormal )
 facetAttributes triangle =
     let
@@ -170,7 +169,7 @@ facetAttributes triangle =
     )
 
 
-triangles : List (Triangle3d Meters coordinates) -> Plain coordinates
+triangles : List (Triangle3d units coordinates) -> Plain units coordinates
 triangles givenTriangles =
     case givenTriangles of
         [] ->
@@ -187,7 +186,7 @@ triangles givenTriangles =
             Types.Triangles bounds givenTriangles webGLMesh KeepBackFaces
 
 
-facets : List (Triangle3d Meters coordinates) -> Uniform coordinates
+facets : List (Triangle3d units coordinates) -> Uniform units coordinates
 facets givenTriangles =
     case givenTriangles of
         [] ->
@@ -204,7 +203,7 @@ facets givenTriangles =
             Types.Facets bounds givenTriangles webGLMesh KeepBackFaces
 
 
-collectPlain : Point3d Meters coordinates -> List PlainVertex -> List PlainVertex
+collectPlain : Point3d units coordinates -> List PlainVertex -> List PlainVertex
 collectPlain point accumulated =
     { position = Point3d.toVec3 point } :: accumulated
 
@@ -217,7 +216,7 @@ plainBoundsHelp :
     -> Float
     -> Float
     -> List PlainVertex
-    -> BoundingBox3d Meters coordinates
+    -> BoundingBox3d units coordinates
 plainBoundsHelp minX maxX minY maxY minZ maxZ remaining =
     case remaining of
         next :: rest ->
@@ -251,7 +250,7 @@ plainBoundsHelp minX maxX minY maxY minZ maxZ remaining =
                 }
 
 
-plainBounds : PlainVertex -> List PlainVertex -> BoundingBox3d Meters coordinates
+plainBounds : PlainVertex -> List PlainVertex -> BoundingBox3d units coordinates
 plainBounds first rest =
     let
         x =
@@ -266,7 +265,7 @@ plainBounds first rest =
     plainBoundsHelp x x y y z z rest
 
 
-plain : TriangularMesh (Point3d Meters coordinates) -> Plain coordinates
+plain : TriangularMesh (Point3d units coordinates) -> Plain units coordinates
 plain givenMesh =
     let
         collectedVertices =
@@ -290,7 +289,7 @@ plain givenMesh =
 
 
 collectSmooth :
-    { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates }
+    { position : Point3d units coordinates, normal : Vector3d Unitless coordinates }
     -> List VertexWithNormal
     -> List VertexWithNormal
 collectSmooth { position, normal } accumulated =
@@ -306,7 +305,7 @@ vertexBoundsHelp :
     -> Float
     -> Float
     -> List { a | position : Vec3 }
-    -> BoundingBox3d Meters coordinates
+    -> BoundingBox3d units coordinates
 vertexBoundsHelp minX maxX minY maxY minZ maxZ remaining =
     case remaining of
         next :: rest ->
@@ -340,7 +339,7 @@ vertexBoundsHelp minX maxX minY maxY minZ maxZ remaining =
                 }
 
 
-vertexBounds : { a | position : Vec3 } -> List { a | position : Vec3 } -> BoundingBox3d Meters coordinates
+vertexBounds : { a | position : Vec3 } -> List { a | position : Vec3 } -> BoundingBox3d units coordinates
 vertexBounds first rest =
     let
         x =
@@ -356,8 +355,8 @@ vertexBounds first rest =
 
 
 uniform :
-    TriangularMesh { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates }
-    -> Uniform coordinates
+    TriangularMesh { position : Point3d units coordinates, normal : Vector3d Unitless coordinates }
+    -> Uniform units coordinates
 uniform givenMesh =
     let
         collectedVertices =
@@ -381,7 +380,7 @@ uniform givenMesh =
 
 
 collectTextured :
-    { position : Point3d Meters coordinates, uv : ( Float, Float ) }
+    { position : Point3d units coordinates, uv : ( Float, Float ) }
     -> List VertexWithUv
     -> List VertexWithUv
 collectTextured { position, uv } accumulated =
@@ -394,8 +393,8 @@ collectTextured { position, uv } accumulated =
 
 
 unlit :
-    TriangularMesh { position : Point3d Meters coordinates, uv : ( Float, Float ) }
-    -> Unlit coordinates
+    TriangularMesh { position : Point3d units coordinates, uv : ( Float, Float ) }
+    -> Unlit units coordinates
 unlit givenMesh =
     let
         collectedVertices =
@@ -419,7 +418,7 @@ unlit givenMesh =
 
 
 collectSmoothTextured :
-    { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ) }
+    { position : Point3d units coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ) }
     -> List VertexWithNormalAndUv
     -> List VertexWithNormalAndUv
 collectSmoothTextured { position, normal, uv } accumulated =
@@ -433,11 +432,11 @@ collectSmoothTextured { position, normal, uv } accumulated =
 
 textured :
     TriangularMesh
-        { position : Point3d Meters coordinates
+        { position : Point3d units coordinates
         , normal : Vector3d Unitless coordinates
         , uv : ( Float, Float )
         }
-    -> Textured coordinates
+    -> Textured units coordinates
 textured givenMesh =
     let
         collectedVertices =
@@ -461,7 +460,11 @@ textured givenMesh =
 
 
 collectNormalMapped :
-    { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ), tangent : Vector3d Unitless coordinates }
+    { position : Point3d units coordinates
+    , normal : Vector3d Unitless coordinates
+    , uv : ( Float, Float )
+    , tangent : Vector3d Unitless coordinates
+    }
     -> List VertexWithTangent
     -> List VertexWithTangent
 collectNormalMapped { position, normal, uv, tangent } accumulated =
@@ -475,12 +478,12 @@ collectNormalMapped { position, normal, uv, tangent } accumulated =
 
 normalMapped :
     TriangularMesh
-        { position : Point3d Meters coordinates
+        { position : Point3d units coordinates
         , normal : Vector3d Unitless coordinates
         , uv : ( Float, Float )
         , tangent : Vector3d Unitless coordinates
         }
-    -> NormalMapped coordinates
+    -> NormalMapped units coordinates
 normalMapped givenMesh =
     let
         collectedVertices =
@@ -503,7 +506,7 @@ normalMapped givenMesh =
             Types.MeshWithTangents bounds givenMesh webGLMesh KeepBackFaces
 
 
-lineSegmentAttributes : LineSegment3d Meters coordinates -> ( PlainVertex, PlainVertex )
+lineSegmentAttributes : LineSegment3d units coordinates -> ( PlainVertex, PlainVertex )
 lineSegmentAttributes givenSegment =
     let
         ( p1, p2 ) =
@@ -512,7 +515,7 @@ lineSegmentAttributes givenSegment =
     ( plainVertex p1, plainVertex p2 )
 
 
-lineSegments : List (LineSegment3d Meters coordinates) -> Plain coordinates
+lineSegments : List (LineSegment3d units coordinates) -> Plain units coordinates
 lineSegments givenSegments =
     case givenSegments of
         [] ->
@@ -529,7 +532,7 @@ lineSegments givenSegments =
             Types.LineSegments bounds givenSegments webGLMesh
 
 
-polyline : Polyline3d Meters coordinates -> Plain coordinates
+polyline : Polyline3d units coordinates -> Plain units coordinates
 polyline givenPolyline =
     let
         vertices =
@@ -552,8 +555,8 @@ polyline givenPolyline =
 
 points :
     { radius : Quantity Float Pixels }
-    -> List (Point3d Meters coordinates)
-    -> Plain coordinates
+    -> List (Point3d units coordinates)
+    -> Plain units coordinates
 points { radius } givenPoints =
     case givenPoints of
         [] ->
@@ -570,7 +573,7 @@ points { radius } givenPoints =
             Types.Points bounds (inPixels radius) givenPoints webGLMesh
 
 
-shadow : Mesh coordinates attributes -> Shadow coordinates
+shadow : Mesh units coordinates attributes -> Shadow units coordinates
 shadow mesh =
     case mesh of
         Types.EmptyMesh ->
@@ -619,7 +622,7 @@ shadow mesh =
             Types.EmptyShadow
 
 
-shadowImpl : BoundingBox3d Meters coordinates -> TriangularMesh (Point3d Meters coordinates) -> Shadow coordinates
+shadowImpl : BoundingBox3d units coordinates -> TriangularMesh (Point3d units coordinates) -> Shadow units coordinates
 shadowImpl boundingBox triangularMesh =
     let
         numVertices =
@@ -643,9 +646,9 @@ shadowImpl boundingBox triangularMesh =
 buildShadowEdges :
     Int
     -> List ( Int, Int, Int )
-    -> List ( Point3d Meters coordinates, Point3d Meters coordinates, Point3d Meters coordinates )
-    -> Dict Int (ShadowEdge coordinates)
-    -> List (ShadowEdge coordinates)
+    -> List ( Point3d units coordinates, Point3d units coordinates, Point3d units coordinates )
+    -> Dict Int (ShadowEdge units coordinates)
+    -> List (ShadowEdge units coordinates)
 buildShadowEdges numVertices faceIndices faceVertices edgeDictionary =
     case faceIndices of
         ( i, j, k ) :: remainingFaceIndices ->
@@ -686,7 +689,7 @@ buildShadowEdges numVertices faceIndices faceVertices edgeDictionary =
 
 
 collectShadowFaces :
-    ShadowEdge coordinates
+    ShadowEdge units coordinates
     -> List ( VertexWithNormal, VertexWithNormal, VertexWithNormal )
     -> List ( VertexWithNormal, VertexWithNormal, VertexWithNormal )
 collectShadowFaces { startPoint, endPoint, leftNormal, rightNormal } accumulated =
@@ -718,11 +721,11 @@ edgeKey numVertices i j =
 updateShadowEdge :
     Int
     -> Int
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
     -> Vector3d Unitless coordinates
-    -> Maybe (ShadowEdge coordinates)
-    -> Maybe (ShadowEdge coordinates)
+    -> Maybe (ShadowEdge units coordinates)
+    -> Maybe (ShadowEdge units coordinates)
 updateShadowEdge i j pi pj normalVector currentEntry =
     case currentEntry of
         Nothing ->
@@ -791,7 +794,7 @@ updateShadowEdge i j pi pj normalVector currentEntry =
                     }
 
 
-cullBackFaces : Mesh coordinates attributes -> Mesh coordinates attributes
+cullBackFaces : Mesh units coordinates attributes -> Mesh units coordinates attributes
 cullBackFaces mesh =
     case mesh of
         Types.EmptyMesh ->

@@ -11,10 +11,9 @@ import Array
 import Direction2d
 import Direction3d exposing (Direction3d)
 import Frame3d exposing (Frame3d)
-import Length exposing (Length, Meters)
 import Parameter1d
 import Point3d exposing (Point3d)
-import Quantity exposing (Quantity, zero)
+import Quantity exposing (Quantity(..), zero)
 import Scene3d.Mesh as Mesh exposing (Mesh)
 import Scene3d.Types as Types exposing (Entity, Material)
 import SketchPlane3d
@@ -23,14 +22,14 @@ import TriangularMesh
 import Vector3d exposing (Vector3d)
 
 
-sphere : Mesh.Textured coordinates
+sphere : Mesh.Textured units coordinates
 sphere =
     let
         n =
             72
 
         radius =
-            Length.meters 1
+            Quantity 1
 
         m =
             ceiling (toFloat n / 2)
@@ -123,17 +122,17 @@ sphere =
         |> Mesh.cullBackFaces
 
 
-cylinder : Mesh.Uniform coordinates
+cylinder : Mesh.Uniform units coordinates
 cylinder =
     let
         radius =
-            Length.meters 1
+            Quantity 1
 
         subdivisions =
             72
 
         height =
-            Length.meters 1
+            Quantity 1
 
         wedgeAngle =
             Angle.turns 1 |> Quantity.divideBy (toFloat subdivisions)
@@ -226,17 +225,17 @@ cylinder =
     Mesh.uniform triangularMesh |> Mesh.cullBackFaces
 
 
-block : Mesh.Uniform coordinates
+block : Mesh.Uniform units coordinates
 block =
     let
         x =
-            Length.meters 1
+            Quantity 1
 
         y =
-            Length.meters 1
+            Quantity 1
 
         z =
-            Length.meters 1
+            Quantity 1
 
         minX =
             Quantity.multiplyBy -0.5 x
@@ -297,11 +296,11 @@ block =
         |> Mesh.cullBackFaces
 
 
-blockShadow : Mesh.Shadow coordinates
+blockShadow : Mesh.Shadow units coordinates
 blockShadow =
     Mesh.shadow block
 
 
-cylinderShadow : Mesh.Shadow coordinates
+cylinderShadow : Mesh.Shadow units coordinates
 cylinderShadow =
     Mesh.shadow cylinder

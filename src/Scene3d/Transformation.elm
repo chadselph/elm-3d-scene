@@ -30,7 +30,7 @@ type alias Transformation =
     Types.Transformation
 
 
-placementFrame : Transformation -> Frame3d Meters coordinates defines
+placementFrame : Transformation -> Frame3d units coordinates defines
 placementFrame transformation =
     Frame3d.unsafe
         { originPoint =
@@ -103,7 +103,7 @@ identity =
     }
 
 
-translateBy : Vector3d Meters coordinates -> Transformation
+translateBy : Vector3d units coordinates -> Transformation
 translateBy displacement =
     let
         v =
@@ -128,7 +128,7 @@ translateBy displacement =
     }
 
 
-scaleAbout : Point3d Meters coordinates -> Float -> Transformation
+scaleAbout : Point3d units coordinates -> Float -> Transformation
 scaleAbout point k =
     let
         p =
@@ -177,7 +177,7 @@ preScale scaleX scaleY scaleZ =
     }
 
 
-rotateAround : Axis3d Meters coordinates -> Angle -> Transformation
+rotateAround : Axis3d units coordinates -> Angle -> Transformation
 rotateAround axis (Quantity angle) =
     let
         p0 =
@@ -277,7 +277,7 @@ rotateAround axis (Quantity angle) =
     }
 
 
-mirrorAcross : Plane3d Meters coordinates -> Transformation
+mirrorAcross : Plane3d units coordinates -> Transformation
 mirrorAcross plane =
     let
         n =
@@ -323,7 +323,7 @@ mirrorAcross plane =
     }
 
 
-relativeTo : Frame3d Meters coordinates defines -> Transformation
+relativeTo : Frame3d units coordinates defines -> Transformation
 relativeTo frame =
     let
         i =
@@ -357,7 +357,7 @@ relativeTo frame =
     }
 
 
-placeIn : Frame3d Meters coordinates defines -> Transformation
+placeIn : Frame3d units coordinates defines -> Transformation
 placeIn frame =
     let
         i =

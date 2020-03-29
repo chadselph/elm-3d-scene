@@ -27,7 +27,6 @@ import Cylinder3d exposing (Cylinder3d)
 import Direction3d exposing (Direction3d)
 import Float.Extra as Float
 import Frame3d exposing (Frame3d)
-import Length exposing (Length, Meters)
 import LineSegment3d exposing (LineSegment3d)
 import Luminance exposing (Luminance)
 import Math.Matrix4 exposing (Mat4)
@@ -69,16 +68,16 @@ import WebGL.Settings.StencilTest as StencilTest
 import WebGL.Texture
 
 
-type alias Entity coordinates =
-    Types.Entity coordinates
+type alias Entity units coordinates =
+    Types.Entity units coordinates
 
 
-empty : Entity coordinates
+empty : Entity units coordinates
 empty =
     Types.Entity EmptyNode
 
 
-mesh : Material coordinates attributes -> Mesh coordinates attributes -> Entity coordinates
+mesh : Material units coordinates attributes -> Mesh units coordinates attributes -> Entity units coordinates
 mesh givenMaterial givenMesh =
     case givenMaterial of
         Types.UnlitMaterial _ (Types.Constant color) ->
@@ -522,12 +521,12 @@ resolveLambertian materialColorTexture normalMapTexture =
 
 quad :
     Bool
-    -> Material.Textured coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Entity coordinates
+    -> Material.Textured units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Entity units coordinates
 quad castsShadow givenMaterial firstPoint secondPoint thirdPoint fourthPoint =
     let
         meshEntity =
@@ -551,24 +550,24 @@ quadVertices =
 
 
 quadVertexPositions :
-    Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
+    Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
     -> Mat4
 quadVertexPositions firstPoint secondPoint thirdPoint fourthPoint =
     let
         p1 =
-            Point3d.toMeters firstPoint
+            Point3d.unwrap firstPoint
 
         p2 =
-            Point3d.toMeters secondPoint
+            Point3d.unwrap secondPoint
 
         p3 =
-            Point3d.toMeters thirdPoint
+            Point3d.unwrap thirdPoint
 
         p4 =
-            Point3d.toMeters fourthPoint
+            Point3d.unwrap fourthPoint
     in
     Math.Matrix4.fromRecord
         { m11 = p1.x
@@ -604,12 +603,12 @@ toBounds boundingBox =
 
 
 quadMesh :
-    Material.Textured coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Entity coordinates
+    Material.Textured units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Entity units coordinates
 quadMesh givenMaterial firstPoint secondPoint thirdPoint fourthPoint =
     let
         boundingBox =
@@ -787,7 +786,7 @@ quadMesh givenMaterial firstPoint secondPoint thirdPoint fourthPoint =
                                     }
 
 
-sphere : Bool -> Material.Textured coordinates -> Sphere3d Meters coordinates -> Entity coordinates
+sphere : Bool -> Material.Textured units coordinates -> Sphere3d units coordinates -> Entity units coordinates
 sphere castsShadow givenMaterial givenSphere =
     let
         (Quantity r) =
@@ -808,7 +807,7 @@ sphere castsShadow givenMaterial givenSphere =
         |> translateBy (Vector3d.from Point3d.origin (Sphere3d.centerPoint givenSphere))
 
 
-sphereShadow : Sphere3d Meters coordinates -> Entity coordinates
+sphereShadow : Sphere3d units coordinates -> Entity units coordinates
 sphereShadow givenSphere =
     Types.Entity <|
         Types.ShadowNode <|
@@ -862,7 +861,7 @@ buildSphereOutline index accumulated =
         buildSphereOutline (index - 1) updated
 
 
-block : Bool -> Material.Uniform coordinates -> Block3d Meters coordinates -> Entity coordinates
+block : Bool -> Material.Uniform units coordinates -> Block3d units coordinates -> Entity units coordinates
 block castsShadow givenMaterial givenBlock =
     let
         ( Quantity scaleX, Quantity scaleY, Quantity scaleZ ) =
@@ -883,7 +882,7 @@ block castsShadow givenMaterial givenBlock =
         |> placeIn (Block3d.axes givenBlock)
 
 
-cylinder : Bool -> Material.Uniform coordinates -> Cylinder3d Meters coordinates -> Entity coordinates
+cylinder : Bool -> Material.Uniform units coordinates -> Cylinder3d units coordinates -> Entity units coordinates
 cylinder castsShadow givenMaterial givenCylinder =
     let
         (Quantity radius) =
@@ -910,7 +909,7 @@ cylinder castsShadow givenMaterial givenCylinder =
         |> placeIn centerFrame
 
 
-shadow : Shadow coordinates -> Entity coordinates
+shadow : Shadow units coordinates -> Entity units coordinates
 shadow givenShadow =
     case shadowDrawFunction givenShadow of
         Just drawFunction ->
@@ -920,7 +919,7 @@ shadow givenShadow =
             empty
 
 
-shadowDrawFunction : Types.Shadow coordinates -> Maybe Types.DrawFunction
+shadowDrawFunction : Types.Shadow units coordinates -> Maybe Types.DrawFunction
 shadowDrawFunction givenShadow =
     case givenShadow of
         Types.EmptyShadow ->
@@ -982,11 +981,11 @@ quadShadowVertices =
 
 
 quadShadow :
-    Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Entity coordinates
+    Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Entity units coordinates
 quadShadow firstPoint secondPoint thirdPoint fourthPoint =
     Types.Entity <|
         Types.ShadowNode <|
@@ -1076,7 +1075,7 @@ shadowSettings isRightHanded settings =
         leftHandedStencilTest :: settings
 
 
-constantMesh : Vec3 -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> BackFaceSetting -> Entity coordinates
+constantMesh : Vec3 -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> BackFaceSetting -> Entity units coordinates
 constantMesh color bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds
@@ -1096,7 +1095,7 @@ constantMesh color bounds webGLMesh backFaceSetting =
             )
 
 
-colorTextureMesh : WebGL.Texture.Texture -> Bounds -> WebGL.Mesh { a | position : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity coordinates
+colorTextureMesh : WebGL.Texture.Texture -> Bounds -> WebGL.Mesh { a | position : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity units coordinates
 colorTextureMesh data bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds
@@ -1116,7 +1115,7 @@ colorTextureMesh data bounds webGLMesh backFaceSetting =
             )
 
 
-constantPointMesh : Vec3 -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> Entity coordinates
+constantPointMesh : Vec3 -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> Entity units coordinates
 constantPointMesh color radius bounds webGLMesh =
     Types.Entity <|
         PointNode bounds <|
@@ -1136,7 +1135,7 @@ constantPointMesh color radius bounds webGLMesh =
                     }
 
 
-emissiveMesh : Vec3 -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> BackFaceSetting -> Entity coordinates
+emissiveMesh : Vec3 -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> BackFaceSetting -> Entity units coordinates
 emissiveMesh color backlight bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1155,7 +1154,7 @@ emissiveMesh color backlight bounds webGLMesh backFaceSetting =
                     }
 
 
-texturedEmissiveMesh : WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity coordinates
+texturedEmissiveMesh : WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity units coordinates
 texturedEmissiveMesh colorData backlight bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1175,7 +1174,7 @@ texturedEmissiveMesh colorData backlight bounds webGLMesh backFaceSetting =
                     }
 
 
-emissivePointMesh : Vec3 -> Float -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> Entity coordinates
+emissivePointMesh : Vec3 -> Float -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3 } -> Entity units coordinates
 emissivePointMesh color backlight radius bounds webGLMesh =
     Types.Entity <|
         PointNode bounds <|
@@ -1195,7 +1194,7 @@ emissivePointMesh color backlight radius bounds webGLMesh =
                     }
 
 
-lambertianMesh : Vec3 -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3 } -> BackFaceSetting -> Entity coordinates
+lambertianMesh : Vec3 -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3 } -> BackFaceSetting -> Entity units coordinates
 lambertianMesh color bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1219,7 +1218,7 @@ lambertianMesh color bounds webGLMesh backFaceSetting =
                     }
 
 
-texturedLambertianMesh : WebGL.Texture.Texture -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity coordinates
+texturedLambertianMesh : WebGL.Texture.Texture -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity units coordinates
 texturedLambertianMesh materialColorData bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1245,7 +1244,7 @@ texturedLambertianMesh materialColorData bounds webGLMesh backFaceSetting =
                     }
 
 
-normalMappedLambertianMesh : WebGL.Texture.Texture -> WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2, tangent : Vec3 } -> BackFaceSetting -> Entity coordinates
+normalMappedLambertianMesh : WebGL.Texture.Texture -> WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2, tangent : Vec3 } -> BackFaceSetting -> Entity units coordinates
 normalMappedLambertianMesh materialColorData normalMapData useNormalMap bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1271,7 +1270,7 @@ normalMappedLambertianMesh materialColorData normalMapData useNormalMap bounds w
                     }
 
 
-physicalMesh : Vec3 -> Float -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3 } -> BackFaceSetting -> Entity coordinates
+physicalMesh : Vec3 -> Float -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3 } -> BackFaceSetting -> Entity units coordinates
 physicalMesh color roughness metallic bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1297,7 +1296,7 @@ physicalMesh color roughness metallic bounds webGLMesh backFaceSetting =
                     }
 
 
-texturedPhysicalMesh : WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity coordinates
+texturedPhysicalMesh : WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2 } -> BackFaceSetting -> Entity units coordinates
 texturedPhysicalMesh baseColorData constantBaseColor roughnessData roughnessChannel metallicData metallicChannel bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1328,7 +1327,7 @@ texturedPhysicalMesh baseColorData constantBaseColor roughnessData roughnessChan
                     }
 
 
-normalMappedPhysicalMesh : WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2, tangent : Vec3 } -> BackFaceSetting -> Entity coordinates
+normalMappedPhysicalMesh : WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Vec4 -> WebGL.Texture.Texture -> Float -> Bounds -> WebGL.Mesh { a | position : Vec3, normal : Vec3, uv : Vec2, tangent : Vec3 } -> BackFaceSetting -> Entity units coordinates
 normalMappedPhysicalMesh baseColorData constantBaseColor roughnessData roughnessChannel metallicData metallicChannel normalMapData useNormalMap bounds webGLMesh backFaceSetting =
     Types.Entity <|
         MeshNode bounds <|
@@ -1359,7 +1358,7 @@ normalMappedPhysicalMesh baseColorData constantBaseColor roughnessData roughness
                     }
 
 
-collectNodes : List (Entity coordinates) -> List Node -> List Node
+collectNodes : List (Entity units coordinates) -> List Node -> List Node
 collectNodes drawables accumulated =
     case drawables of
         [] ->
@@ -1369,12 +1368,12 @@ collectNodes drawables accumulated =
             collectNodes rest (node :: accumulated)
 
 
-group : List (Entity coordinates) -> Entity coordinates
+group : List (Entity units coordinates) -> Entity units coordinates
 group drawables =
     Types.Entity (Group (collectNodes drawables []))
 
 
-transformBy : Transformation -> Entity coordinates1 -> Entity coordinates2
+transformBy : Transformation -> Entity units1 coordinates1 -> Entity units2 coordinates2
 transformBy transformation (Types.Entity node) =
     case node of
         EmptyNode ->
@@ -1400,36 +1399,36 @@ transformBy transformation (Types.Entity node) =
             Types.Entity (Transformed transformation node)
 
 
-rotateAround : Axis3d Meters coordinates -> Angle -> Entity coordinates -> Entity coordinates
+rotateAround : Axis3d units coordinates -> Angle -> Entity units coordinates -> Entity units coordinates
 rotateAround axis angle givenDrawable =
     transformBy (Transformation.rotateAround axis angle) givenDrawable
 
 
-translateBy : Vector3d Meters coordinates -> Entity coordinates -> Entity coordinates
+translateBy : Vector3d units coordinates -> Entity units coordinates -> Entity units coordinates
 translateBy displacement givenDrawable =
     transformBy (Transformation.translateBy displacement) givenDrawable
 
 
-translateIn : Direction3d coordinates -> Length -> Entity coordinates -> Entity coordinates
+translateIn : Direction3d coordinates -> Quantity Float units -> Entity units coordinates -> Entity units coordinates
 translateIn direction distance drawable =
     translateBy (Vector3d.withLength distance direction) drawable
 
 
-mirrorAcross : Plane3d Meters coordinates -> Entity coordinates -> Entity coordinates
+mirrorAcross : Plane3d units coordinates -> Entity units coordinates -> Entity units coordinates
 mirrorAcross plane givenDrawable =
     transformBy (Transformation.mirrorAcross plane) givenDrawable
 
 
-relativeTo : Frame3d Meters globalCoordinates { defines : localCoordinates } -> Entity globalCoordinates -> Entity localCoordinates
+relativeTo : Frame3d units globalCoordinates { defines : localCoordinates } -> Entity units globalCoordinates -> Entity units localCoordinates
 relativeTo frame givenDrawable =
     transformBy (Transformation.relativeTo frame) givenDrawable
 
 
-placeIn : Frame3d Meters globalCoordinates { defines : localCoordinates } -> Entity localCoordinates -> Entity globalCoordinates
+placeIn : Frame3d units globalCoordinates { defines : localCoordinates } -> Entity units localCoordinates -> Entity units globalCoordinates
 placeIn frame givenDrawable =
     transformBy (Transformation.placeIn frame) givenDrawable
 
 
-scaleAbout : Point3d Meters coordinates -> Float -> Entity coordinates -> Entity coordinates
+scaleAbout : Point3d units coordinates -> Float -> Entity units coordinates -> Entity units coordinates
 scaleAbout point scale givenDrawable =
     transformBy (Transformation.scaleAbout point scale) givenDrawable

@@ -186,13 +186,13 @@ import WebGL.Texture exposing (Texture)
 
 {-| An `Entity` is a shape or group of shapes in a scene.
 -}
-type alias Entity coordinates =
-    Types.Entity coordinates
+type alias Entity units coordinates =
+    Types.Entity units coordinates
 
 
 {-| A dummy entity for which nothing will be drawn.
 -}
-nothing : Entity coordinates
+nothing : Entity units coordinates
 nothing =
     Entity.empty
 
@@ -211,12 +211,12 @@ rectangle basically the way you would expect.
 -}
 quad :
     CastsShadows a
-    -> Material.Textured coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Point3d Meters coordinates
-    -> Entity coordinates
+    -> Material.Textured units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Point3d units coordinates
+    -> Entity units coordinates
 quad (CastsShadows shadowFlag) givenMaterial p1 p2 p3 p4 =
     Entity.quad shadowFlag givenMaterial p1 p2 p3 p4
 
@@ -236,7 +236,7 @@ Note that this projection, while simple, means that the texture used will get
 'squished' near the poles of the sphere.
 
 -}
-sphere : CastsShadows a -> Material.Textured coordinates -> Sphere3d Meters coordinates -> Entity coordinates
+sphere : CastsShadows a -> Material.Textured units coordinates -> Sphere3d units coordinates -> Entity units coordinates
 sphere (CastsShadows shadowFlag) givenMaterial givenSphere =
     Entity.sphere shadowFlag givenMaterial givenSphere
 
@@ -244,7 +244,7 @@ sphere (CastsShadows shadowFlag) givenMaterial givenSphere =
 {-| Draw a rectangular block using the [`Block3d`](https://package.elm-lang.org/packages/ianmackenzie/elm-geometry/latest/Block3d)
 type from `elm-geometry`.
 -}
-block : CastsShadows a -> Material.Uniform coordinates -> Block3d Meters coordinates -> Entity coordinates
+block : CastsShadows a -> Material.Uniform units coordinates -> Block3d units coordinates -> Entity units coordinates
 block (CastsShadows shadowFlag) givenMaterial givenBlock =
     Entity.block shadowFlag givenMaterial givenBlock
 
@@ -252,7 +252,7 @@ block (CastsShadows shadowFlag) givenMaterial givenBlock =
 {-| Draw a cylinder using the [`Cylinder3d`](https://package.elm-lang.org/packages/ianmackenzie/elm-geometry/latest/Cylinder3d)
 type from `elm-geometry`.
 -}
-cylinder : CastsShadows a -> Material.Uniform coordinates -> Cylinder3d Meters coordinates -> Entity coordinates
+cylinder : CastsShadows a -> Material.Uniform units coordinates -> Cylinder3d units coordinates -> Entity units coordinates
 cylinder (CastsShadows shadowFlag) givenMaterial givenCylinder =
     Entity.cylinder shadowFlag givenMaterial givenCylinder
 
@@ -267,7 +267,7 @@ If you want to also draw the shadow of a given object, you'll need to use
 [`shadow`](#shadow) or [`withShadow`](#withShadow).
 
 -}
-mesh : Material coordinates attributes -> Mesh coordinates attributes -> Entity coordinates
+mesh : Material units coordinates attributes -> Mesh units coordinates attributes -> Entity units coordinates
 mesh givenMaterial givenMesh =
     Entity.mesh givenMaterial givenMesh
 
@@ -275,7 +275,7 @@ mesh givenMaterial givenMesh =
 {-| Group a list of entities into a single entity. This combined entity can then
 be transformed, grouped with other entities, etc.
 -}
-group : List (Entity coordinates) -> Entity coordinates
+group : List (Entity units coordinates) -> Entity units coordinates
 group entities =
     Entity.group entities
 
@@ -284,7 +284,7 @@ group entities =
 render an object and its shadow, and object without its shadow, or even render
 an object's shadow without the object itself for [maximum creepiness](https://en.wikipedia.org/wiki/Identity_Crisis_(Star_Trek:_The_Next_Generation)).
 -}
-shadow : Mesh.Shadow coordinates -> Entity coordinates
+shadow : Mesh.Shadow units coordinates -> Entity units coordinates
 shadow givenShadow =
     Entity.shadow givenShadow
 
@@ -298,28 +298,28 @@ is shorthand for
     Scene3d.group [ entity, Scene3d.shadow shadow ]
 
 -}
-withShadow : Mesh.Shadow coordinates -> Entity coordinates -> Entity coordinates
+withShadow : Mesh.Shadow units coordinates -> Entity units coordinates -> Entity units coordinates
 withShadow givenShadow givenEntity =
     group [ givenEntity, shadow givenShadow ]
 
 
 {-| Rotate an entity around a given axis by a given angle.
 -}
-rotateAround : Axis3d Meters coordinates -> Angle -> Entity coordinates -> Entity coordinates
+rotateAround : Axis3d units coordinates -> Angle -> Entity units coordinates -> Entity units coordinates
 rotateAround axis angle entity =
     Entity.rotateAround axis angle entity
 
 
 {-| Translate (move) an entity by a given displacement vector.
 -}
-translateBy : Vector3d Meters coordinates -> Entity coordinates -> Entity coordinates
+translateBy : Vector3d units coordinates -> Entity units coordinates -> Entity units coordinates
 translateBy displacement entity =
     Entity.translateBy displacement entity
 
 
 {-| Translate an entity in a given direction by a given distance.
 -}
-translateIn : Direction3d coordinates -> Length -> Entity coordinates -> Entity coordinates
+translateIn : Direction3d coordinates -> Quantity Float units -> Entity units coordinates -> Entity units coordinates
 translateIn direction distance entity =
     Entity.translateIn direction distance entity
 
@@ -333,14 +333,14 @@ _negative_ scale factor, but that flips the mesh inside out so I don't really
 recommend it.
 
 -}
-scaleAbout : Point3d Meters coordinates -> Float -> Entity coordinates -> Entity coordinates
+scaleAbout : Point3d units coordinates -> Float -> Entity units coordinates -> Entity units coordinates
 scaleAbout centerPoint scale entity =
     Entity.scaleAbout centerPoint scale entity
 
 
 {-| Mirror an entity across a plane.
 -}
-mirrorAcross : Plane3d Meters coordinates -> Entity coordinates -> Entity coordinates
+mirrorAcross : Plane3d units coordinates -> Entity units coordinates -> Entity units coordinates
 mirrorAcross plane entity =
     Entity.mirrorAcross plane entity
 
@@ -350,7 +350,7 @@ to global coordinates. This can be useful if you have some entities which are
 defined in some local coordinate system like inside a car, and you want to
 render them within a larger world.
 -}
-placeIn : Frame3d Meters coordinates { defines : localCoordinates } -> Entity localCoordinates -> Entity coordinates
+placeIn : Frame3d units coordinates { defines : localCoordinates } -> Entity units localCoordinates -> Entity units coordinates
 placeIn frame entity =
     Entity.placeIn frame entity
 
@@ -361,7 +361,7 @@ but may be useful if you are (for example) rendering an office scene (and
 working primarily in local room coordinates) but want to incorporate some entity
 defined in global coordinates like a bird flying past the window.
 -}
-relativeTo : Frame3d Meters coordinates { defines : localCoordinates } -> Entity coordinates -> Entity localCoordinates
+relativeTo : Frame3d units coordinates { defines : localCoordinates } -> Entity units coordinates -> Entity units localCoordinates
 relativeTo frame entity =
     Entity.relativeTo frame entity
 
@@ -386,8 +386,8 @@ relativeTo frame entity =
 or a light bulb. Lights are not rendered themselves; they can only be seen by
 how they interact with objects in the scene.
 -}
-type alias Light coordinates castsShadows =
-    Types.Light coordinates castsShadows
+type alias Light units coordinates castsShadows =
+    Types.Light units coordinates castsShadows
 
 
 {-| A `Lights` value represents the set of all lights in a scene. There are a
@@ -401,13 +401,13 @@ couple of current limitations to note in `elm-3d-scene`:
 constraints are satisfied.)
 
 -}
-type Lights coordinates
+type Lights units coordinates
     = SingleUnshadowedPass LightMatrices
     | SingleShadowedPass LightMatrices
     | TwoPasses LightMatrices LightMatrices
 
 
-disabledLight : Light coordinates castsShadows
+disabledLight : Light units coordinates castsShadows
 disabledLight =
     Types.Light
         { type_ = 0
@@ -422,7 +422,7 @@ disabledLight =
         }
 
 
-lightPair : Light coordinates firstCastsShadows -> Light coordinates secondCastsShadows -> Mat4
+lightPair : Light units coordinates firstCastsShadows -> Light units coordinates secondCastsShadows -> Mat4
 lightPair (Types.Light first) (Types.Light second) =
     Math.Matrix4.fromRecord
         { m11 = first.x
@@ -457,17 +457,17 @@ lightingDisabled =
 like [`color`](Material#color) or [`emissive`](Material#emissive) (since those
 materials don't react to light anyways).
 -}
-noLights : Lights coordinates
+noLights : Lights units coordinates
 noLights =
     SingleUnshadowedPass lightingDisabled
 
 
-lightCastsShadows : Light coordinates castsShadows -> Bool
+lightCastsShadows : Light units coordinates castsShadows -> Bool
 lightCastsShadows (Types.Light properties) =
     properties.castsShadows
 
 
-oneLight : Light coordinates (CastsShadows a) -> Lights coordinates
+oneLight : Light units coordinates (CastsShadows a) -> Lights units coordinates
 oneLight light =
     let
         lightMatrices =
@@ -485,9 +485,9 @@ oneLight light =
 
 
 twoLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 twoLights first second =
     eightLights
         first
@@ -501,10 +501,10 @@ twoLights first second =
 
 
 threeLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 threeLights first second third =
     eightLights
         first
@@ -518,11 +518,11 @@ threeLights first second third =
 
 
 fourLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 fourLights first second third fourth =
     eightLights
         first
@@ -536,12 +536,12 @@ fourLights first second third fourth =
 
 
 fiveLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 fiveLights first second third fourth fifth =
     eightLights
         first
@@ -555,13 +555,13 @@ fiveLights first second third fourth fifth =
 
 
 sixLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 sixLights first second third fourth fifth sixth =
     eightLights
         first
@@ -575,14 +575,14 @@ sixLights first second third fourth fifth sixth =
 
 
 sevenLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 sevenLights first second third fourth fifth sixth seventh =
     eightLights
         first
@@ -596,15 +596,15 @@ sevenLights first second third fourth fifth sixth seventh =
 
 
 eightLights :
-    Light coordinates (CastsShadows a)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Light coordinates (CastsShadows No)
-    -> Lights coordinates
+    Light units coordinates (CastsShadows a)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Light units coordinates (CastsShadows No)
+    -> Lights units coordinates
 eightLights first second third fourth fifth sixth seventh eigth =
     if lightCastsShadows first then
         TwoPasses
@@ -657,7 +657,7 @@ directionalLight :
         , intensity : Illuminance
         , direction : Direction3d coordinates
         }
-    -> Light coordinates (CastsShadows a)
+    -> Light Meters coordinates (CastsShadows a)
 directionalLight (CastsShadows shadowFlag) { chromaticity, intensity, direction } =
     let
         { x, y, z } =
@@ -689,7 +689,7 @@ pointLight :
         , intensity : LuminousFlux
         , position : Point3d Meters coordinates
         }
-    -> Light coordinates (CastsShadows a)
+    -> Light Meters coordinates (CastsShadows a)
 pointLight (CastsShadows shadowFlag) { chromaticity, intensity, position } =
     let
         (LinearRgb rgb) =
@@ -718,8 +718,8 @@ pointLight (CastsShadows shadowFlag) { chromaticity, intensity, position } =
 ----- ENVIRONMENTAL LIGHTING ------
 
 
-type alias EnvironmentalLighting coordinates =
-    Types.EnvironmentalLighting coordinates
+type alias EnvironmentalLighting units coordinates =
+    Types.EnvironmentalLighting units coordinates
 
 
 environmentalLightingDisabled : Mat4
@@ -744,7 +744,7 @@ environmentalLightingDisabled =
         }
 
 
-noEnvironmentalLighting : EnvironmentalLighting coordinates
+noEnvironmentalLighting : EnvironmentalLighting units coordinates
 noEnvironmentalLighting =
     Types.NoEnvironmentalLighting
 
@@ -756,7 +756,7 @@ softLighting :
     , above : ( Luminance, Chromaticity )
     , below : ( Luminance, Chromaticity )
     }
-    -> EnvironmentalLighting coordinates
+    -> EnvironmentalLighting Meters coordinates
 softLighting { upDirection, above, below } =
     let
         { x, y, z } =
@@ -805,11 +805,11 @@ softLighting { upDirection, above, below } =
 ----- BACKGROUND -----
 
 
-type Background
+type Background units coordinates
     = BackgroundColor Color.Transparent.Color
 
 
-transparentBackground : Background
+transparentBackground : Background units coordinates
 transparentBackground =
     BackgroundColor <|
         Color.Transparent.fromRGBA
@@ -820,7 +820,7 @@ transparentBackground =
             }
 
 
-blackBackground : Background
+blackBackground : Background units coordinates
 blackBackground =
     BackgroundColor <|
         Color.Transparent.fromRGBA
@@ -831,7 +831,7 @@ blackBackground =
             }
 
 
-whiteBackground : Background
+whiteBackground : Background units coordinates
 whiteBackground =
     BackgroundColor <|
         Color.Transparent.fromRGBA
@@ -842,12 +842,12 @@ whiteBackground =
             }
 
 
-backgroundColor : Color -> Background
+backgroundColor : Color -> Background units coordinates
 backgroundColor color =
     BackgroundColor (Color.Transparent.fromColor Color.Transparent.opaque color)
 
 
-transparentBackgroundColor : Color.Transparent.Color -> Background
+transparentBackgroundColor : Color.Transparent.Color -> Background units coordinates
 transparentBackgroundColor transparentColor =
     BackgroundColor transparentColor
 
@@ -1162,17 +1162,17 @@ getFarClipDepth viewAxis currentValue scaleX scaleY scaleZ nodes =
 
 
 toWebGLEntities :
-    { lights : Lights coordinates
-    , environmentalLighting : EnvironmentalLighting coordinates
-    , camera : Camera3d Meters coordinates
-    , clipDepth : Length
-    , exposure : Exposure
+    { lights : Lights units coordinates
+    , environmentalLighting : EnvironmentalLighting units coordinates
+    , camera : Camera3d units coordinates
+    , clipDepth : Quantity Float units
+    , exposure : Exposure units
     , dynamicRange : Float
     , whiteBalance : Chromaticity
     , aspectRatio : Float
     , supersampling : Float
     }
-    -> List (Entity coordinates)
+    -> List (Entity units coordinates)
     -> List WebGL.Entity
 toWebGLEntities arguments drawables =
     let
@@ -1289,7 +1289,7 @@ toWebGLEntities arguments drawables =
 toHtml :
     List Option
     ->
-        { lights : Lights coordinates
+        { lights : Lights units coordinates
         , environmentalLighting : EnvironmentalLighting coordinates
         , camera : Camera3d Meters coordinates
         , clipDepth : Length
@@ -1298,7 +1298,7 @@ toHtml :
         , dimensions : ( Quantity Float Pixels, Quantity Float Pixels )
         , background : Background
         }
-    -> List (Entity coordinates)
+    -> List (Entity units coordinates)
     -> Html msg
 toHtml options arguments drawables =
     let

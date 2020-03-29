@@ -84,7 +84,7 @@ type alias VertexWithTangent =
     }
 
 
-type Material coordinates attributes
+type Material units coordinates attributes
     = UnlitMaterial TextureMap (Texture Vec3)
     | EmissiveMaterial TextureMap (Texture LinearRgb) Float
     | LambertianMaterial TextureMap (Texture LinearRgb) (Texture NormalMap)
@@ -118,31 +118,31 @@ type BackFaceSetting
     | CullBackFaces
 
 
-type Mesh coordinates attributes
+type Mesh units coordinates attributes
     = EmptyMesh
-    | Triangles (BoundingBox3d Meters coordinates) (List (Triangle3d Meters coordinates)) (WebGL.Mesh PlainVertex) BackFaceSetting
-    | Facets (BoundingBox3d Meters coordinates) (List (Triangle3d Meters coordinates)) (WebGL.Mesh VertexWithNormal) BackFaceSetting
-    | Indexed (BoundingBox3d Meters coordinates) (TriangularMesh (Point3d Meters coordinates)) (WebGL.Mesh PlainVertex) BackFaceSetting
-    | MeshWithNormals (BoundingBox3d Meters coordinates) (TriangularMesh { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates }) (WebGL.Mesh VertexWithNormal) BackFaceSetting
-    | MeshWithUvs (BoundingBox3d Meters coordinates) (TriangularMesh { position : Point3d Meters coordinates, uv : ( Float, Float ) }) (WebGL.Mesh VertexWithUv) BackFaceSetting
-    | MeshWithNormalsAndUvs (BoundingBox3d Meters coordinates) (TriangularMesh { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ) }) (WebGL.Mesh VertexWithNormalAndUv) BackFaceSetting
-    | MeshWithTangents (BoundingBox3d Meters coordinates) (TriangularMesh { position : Point3d Meters coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ), tangent : Vector3d Unitless coordinates }) (WebGL.Mesh VertexWithTangent) BackFaceSetting
-    | LineSegments (BoundingBox3d Meters coordinates) (List (LineSegment3d Meters coordinates)) (WebGL.Mesh PlainVertex)
-    | Polyline (BoundingBox3d Meters coordinates) (Polyline3d Meters coordinates) (WebGL.Mesh PlainVertex)
-    | Points (BoundingBox3d Meters coordinates) Float (List (Point3d Meters coordinates)) (WebGL.Mesh PlainVertex)
+    | Triangles (BoundingBox3d units coordinates) (List (Triangle3d units coordinates)) (WebGL.Mesh PlainVertex) BackFaceSetting
+    | Facets (BoundingBox3d units coordinates) (List (Triangle3d units coordinates)) (WebGL.Mesh VertexWithNormal) BackFaceSetting
+    | Indexed (BoundingBox3d units coordinates) (TriangularMesh (Point3d units coordinates)) (WebGL.Mesh PlainVertex) BackFaceSetting
+    | MeshWithNormals (BoundingBox3d units coordinates) (TriangularMesh { position : Point3d units coordinates, normal : Vector3d Unitless coordinates }) (WebGL.Mesh VertexWithNormal) BackFaceSetting
+    | MeshWithUvs (BoundingBox3d units coordinates) (TriangularMesh { position : Point3d units coordinates, uv : ( Float, Float ) }) (WebGL.Mesh VertexWithUv) BackFaceSetting
+    | MeshWithNormalsAndUvs (BoundingBox3d units coordinates) (TriangularMesh { position : Point3d units coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ) }) (WebGL.Mesh VertexWithNormalAndUv) BackFaceSetting
+    | MeshWithTangents (BoundingBox3d units coordinates) (TriangularMesh { position : Point3d units coordinates, normal : Vector3d Unitless coordinates, uv : ( Float, Float ), tangent : Vector3d Unitless coordinates }) (WebGL.Mesh VertexWithTangent) BackFaceSetting
+    | LineSegments (BoundingBox3d units coordinates) (List (LineSegment3d units coordinates)) (WebGL.Mesh PlainVertex)
+    | Polyline (BoundingBox3d units coordinates) (Polyline3d units coordinates) (WebGL.Mesh PlainVertex)
+    | Points (BoundingBox3d units coordinates) Float (List (Point3d units coordinates)) (WebGL.Mesh PlainVertex)
 
 
-type alias ShadowEdge coordinates =
-    { startPoint : Point3d Meters coordinates
-    , endPoint : Point3d Meters coordinates
+type alias ShadowEdge units coordinates =
+    { startPoint : Point3d units coordinates
+    , endPoint : Point3d units coordinates
     , leftNormal : Vector3d Unitless coordinates
     , rightNormal : Vector3d Unitless coordinates
     }
 
 
-type Shadow coordinates
+type Shadow units coordinates
     = EmptyShadow
-    | Shadow (List (ShadowEdge coordinates)) (WebGL.Mesh VertexWithNormal)
+    | Shadow (List (ShadowEdge units coordinates)) (WebGL.Mesh VertexWithNormal)
 
 
 type alias LightMatrices =
@@ -175,7 +175,7 @@ type Node
     | Transformed Transformation Node
 
 
-type Entity coordinates
+type Entity units coordinates
     = Entity Node
 
 
@@ -191,7 +191,7 @@ type LinearRgb
     = LinearRgb Vec3
 
 
-type Light coordinates castsShadows
+type Light units coordinates castsShadows
     = Light
         { type_ : Float
         , castsShadows : Bool
@@ -205,6 +205,6 @@ type Light coordinates castsShadows
         }
 
 
-type EnvironmentalLighting coordinates
+type EnvironmentalLighting units coordinates
     = NoEnvironmentalLighting
     | SoftLighting Mat4
