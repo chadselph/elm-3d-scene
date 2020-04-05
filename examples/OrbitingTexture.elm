@@ -140,7 +140,6 @@ view model =
             Camera3d.perspective
                 { viewpoint = viewpoint
                 , verticalFieldOfView = Angle.degrees 30
-                , clipDepth = Length.meters 0.1
                 }
     in
     { title = "OrbitingTexture"
@@ -149,6 +148,7 @@ view model =
             Just texture ->
                 [ Scene3d.toHtml []
                     { camera = camera
+                    , clipDepth = Length.meters 0.1
                     , dimensions = ( Pixels.pixels 800, Pixels.pixels 600 )
                     , lights = Scene3d.noLights
                     , environmentalLighting = Scene3d.noEnvironmentalLighting

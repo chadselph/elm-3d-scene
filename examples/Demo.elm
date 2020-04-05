@@ -269,6 +269,7 @@ view model =
                 ]
                 { dimensions = model.dimensions
                 , camera = camera model.distance model.azimuth model.elevation
+                , clipDepth = Length.meters 0.1
                 , lights = lights model.lights
                 , environmentalLighting = environmentalLighting
                 , exposure = Scene3d.Exposure.fromEv100 model.exposure
@@ -332,7 +333,6 @@ camera distance azimuth elevation =
                 , elevation = elevation
                 , distance = distance
                 }
-        , clipDepth = Length.meters 0.1
         , verticalFieldOfView = Angle.degrees 24
         }
 

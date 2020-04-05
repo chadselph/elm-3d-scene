@@ -210,7 +210,6 @@ camera =
     Camera3d.perspective
         { viewpoint = viewpoint
         , verticalFieldOfView = Angle.degrees 30
-        , clipDepth = Length.centimeters 0.5
         }
 
 
@@ -228,6 +227,7 @@ view model =
             in
             Scene3d.toHtml [ Scene3d.dynamicRange 2 ]
                 { camera = camera
+                , clipDepth = Length.centimeters 0.5
                 , dimensions = ( Pixels.pixels 800, Pixels.pixels 600 )
                 , environmentalLighting =
                     Scene3d.softLighting

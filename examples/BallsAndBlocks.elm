@@ -101,7 +101,6 @@ view { world, screenWidth, screenHeight } =
                         , focalPoint = Point3d.meters 0 0 0
                         , upDirection = Direction3d.positiveZ
                         }
-                , clipDepth = meters 0.1
                 , verticalFieldOfView = Angle.degrees 24
                 }
 
@@ -130,6 +129,7 @@ view { world, screenWidth, screenHeight } =
         [ Scene3d.toHtml []
             { dimensions = ( pixels screenWidth, pixels screenHeight )
             , camera = camera
+            , clipDepth  = Length.meters 0.1
             , lights = Scene3d.oneLight sunlight
             , environmentalLighting = environmentalLighting
             , exposure = Exposure.fromMaxLuminance (Luminance.nits 10000)

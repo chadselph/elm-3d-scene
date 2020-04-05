@@ -173,7 +173,6 @@ camera =
                 , focalPoint = Point3d.meters -0.5 -0.5 0
                 , upDirection = Direction3d.positiveZ
                 }
-        , clipDepth = meters 0.1
         , verticalFieldOfView = Angle.degrees 24
         }
 
@@ -215,6 +214,7 @@ view { world, width, height } =
         [ Scene3d.toHtml []
             { dimensions = ( width, height )
             , camera = camera
+            , clipDepth = meters 0.1
             , lights = Scene3d.oneLight sunlight
             , environmentalLighting = environmentalLighting
             , exposure = Scene3d.Exposure.fromMaxLuminance (Luminance.nits 10000)

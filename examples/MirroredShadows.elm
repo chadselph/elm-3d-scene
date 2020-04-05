@@ -86,7 +86,6 @@ camera =
                 , upDirection = Direction3d.positiveZ
                 }
         , verticalFieldOfView = Angle.degrees 30
-        , clipDepth = meters 0.1
         }
 
 
@@ -140,6 +139,7 @@ main =
                                     else
                                         sunlight
                             , camera = camera
+                            , clipDepth = meters 0.1
                             , dimensions = ( pixels 1024, pixels 768 )
                             , exposure = Exposure.fromEv100 14
                             , whiteBalance = Chromaticity.d65

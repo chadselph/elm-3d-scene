@@ -78,7 +78,6 @@ view model =
                 camera =
                     Camera3d.perspective
                         { viewpoint = viewpoint
-                        , clipDepth = Length.centimeters 10
                         , verticalFieldOfView = Angle.degrees 30
                         }
 
@@ -110,6 +109,7 @@ view model =
             in
             Scene3d.toHtml []
                 { camera = camera
+                , clipDepth = Length.centimeters 10
                 , background = Scene3d.transparentBackground
                 , dimensions = ( Pixels.pixels 800, Pixels.pixels 800 )
                 , whiteBalance = Scene3d.defaultWhiteBalance
